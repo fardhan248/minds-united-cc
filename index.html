@@ -19,10 +19,26 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@kami.mindsunited" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+        <!-- n8n Chat Widget CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
   </head>
 
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <div id="chat"></div>
+    
+    <!-- n8n Chat Widget -->
+    <script type="module">
+      import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+      createChat({
+        webhookUrl: 'https://n8n-neqt0kg4kbsi.n8x.my.id/webhook/9fb06a9f-deba-4735-9285-c24f36f1038e/chat',
+        initialMessages: [
+  "Halo! 🌿 Aku Mindy, asisten digital dari Minds United. Senang bertemu denganmu! Aku di sini untuk membantu kamu seputar kesehatan mental, pengembangan diri, atau jika kamu ingin menghubungi tim kami."
+]
+      });
+    </script>
   </body>
 </html>
