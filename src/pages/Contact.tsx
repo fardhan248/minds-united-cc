@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { MapPin, Mail, Instagram, Phone } from "lucide-react";
+import { MapPin, Mail, Instagram } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const contactSchema = z.object({
   name: z.string().trim().min(1, "Nama tidak boleh kosong").max(100, "Nama maksimal 100 karakter"),
@@ -56,18 +57,36 @@ const Contact = () => {
 
     setIsSubmitting(true);
     
-    // TODO: Connect to Supabase when backend is ready
-    // For now, simulate submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Terima kasih!",
-      description: "Pesan Anda telah kami terima. Kami akan segera menghubungi Anda.",
-    });
-    
-    // Reset form
-    setFormData({ name: "", email: "", subject: "", message: "" });
-    setIsSubmitting(false);
+    try {
+      // Insert into Supabase contacts table
+      const { error } = await supabase
+        .from('contacts')
+        .insert({
+          full_name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Terima kasih!",
+        description: "Pesan Anda telah kami terima. Kami akan segera menghubungi Anda.",
+      });
+      
+      // Reset form
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (error) {
+      console.error('Error submitting contact form:', error);
+      toast({
+        title: "Terjadi kesalahan",
+        description: "Maaf, pesan Anda gagal dikirim. Silakan coba lagi.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
