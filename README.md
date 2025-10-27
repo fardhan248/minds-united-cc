@@ -1,73 +1,182 @@
-# Welcome to your Lovable project
+# Minds United — Website Komunitas Kesehatan Mental
 
-## Project info
+Website resmi untuk Minds United, komunitas dukungan kesehatan mental dan pengembangan diri di Indonesia.
 
-**URL**: https://lovable.dev/projects/6cae9dad-9eba-4d9f-be3f-d08db7de03d9
+## Fitur Utama
 
-## How can I edit this code?
+- **Multi-halaman responsif**: Home, About, E-Book, Programs, Events, Contact
+- **E-Book gratis**: Dua e-book yang dapat diunduh langsung dari Google Drive
+- **Program**: Seminar, Bootcamp, dan Support Community
+- **Events**: Kalender kegiatan mendatang
+- **Contact**: Formulir kontak dengan validasi
+- **Design system**: Warna teal dan lavender yang hangat dan mendukung
+- **Accessibility**: Semantic HTML, ARIA labels, keyboard navigation
 
-There are several ways of editing your application.
+## Teknologi
 
-**Use Lovable**
+- React 18 + TypeScript
+- Vite
+- TailwindCSS dengan design system kustom
+- shadcn/ui components
+- React Router untuk routing
+- Zod untuk validasi form
+- Supabase (sudah tersambung, siap untuk backend)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/6cae9dad-9eba-4d9f-be3f-d08db7de03d9) and start prompting.
+## Struktur Halaman
 
-Changes made via Lovable will be committed automatically to this repo.
+### Home (`/`)
+- Hero section dengan CTA
+- Nilai-nilai utama (3 cards)
+- Featured e-books (2 books)
+- Program overview (3 cards)
+- Upcoming events (3 events)
 
-**Use your preferred IDE**
+### About (`/about`)
+- Mission & Vision
+- Core Values
+- Metode kerja
+- Tim
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### E-Book (`/ebook`)
+- 2 e-book dengan cover image
+- Deskripsi dan outline
+- Download buttons (Google Drive links)
+- Licensing note
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Programs (`/programs`)
+- Tabs: Seminar / Bootcamp / Community
+- Detail program dengan schedule, format, facilitator
+- CTA untuk pendaftaran
 
-Follow these steps:
+### Events (`/events`)
+- List kegiatan mendatang
+- Detail event dengan date, time, location
+- Badge untuk tipe event
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Contact (`/contact`)
+- Form kontak dengan validasi
+- Contact info (alamat, email, Instagram)
+- Google Maps embed
+- Volunteer CTA
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Setup & Development
 
-# Step 3: Install the necessary dependencies.
-npm i
+```bash
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Run development server
 npm run dev
+
+# Build for production
+npm run build
 ```
 
-**Edit a file directly in GitHub**
+## Koneksi Backend (Supabase)
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Project ini sudah tersambung ke Supabase. Untuk menambahkan fitur backend:
 
-**Use GitHub Codespaces**
+### 1. Database Tables (Saran)
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```sql
+-- Tabel contacts untuk form kontak
+CREATE TABLE contacts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
-## What technologies are used for this project?
+-- Tabel registrations untuk pendaftaran event
+CREATE TABLE registrations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  program_id TEXT NOT NULL,
+  session TEXT,
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
-This project is built with:
+-- Tabel newsletter untuk mailing list
+CREATE TABLE newsletter (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### 2. Update Form Handlers
 
-## How can I deploy this project?
+Di `src/pages/Contact.tsx` dan `src/components/Footer.tsx`, ganti placeholder submission dengan:
 
-Simply open [Lovable](https://lovable.dev/projects/6cae9dad-9eba-4d9f-be3f-d08db7de03d9) and click on Share -> Publish.
+```typescript
+import { supabase } from "@/integrations/supabase/client";
 
-## Can I connect a custom domain to my Lovable project?
+// Di handleSubmit:
+const { error } = await supabase
+  .from('contacts')
+  .insert([formData]);
 
-Yes, you can!
+if (error) {
+  toast({
+    title: "Error",
+    description: "Gagal mengirim pesan. Silakan coba lagi.",
+    variant: "destructive",
+  });
+  return;
+}
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### 3. Email Notifications (Optional)
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Gunakan Supabase Edge Functions dengan Resend untuk mengirim email konfirmasi.
+
+## Customization
+
+### Colors
+Edit `src/index.css` untuk mengubah warna utama:
+- `--primary`: Soft teal (172, 64%, 45%)
+- `--secondary`: Muted lavender (270, 35%, 65%)
+- `--accent`: Warm coral (20, 85%, 65%)
+
+### Content
+- E-book links ada di `src/pages/Home.tsx` dan `src/pages/EBook.tsx`
+- Program details di `src/pages/Programs.tsx`
+- Event list di `src/pages/Events.tsx`
+- Contact info di `src/pages/Contact.tsx` dan `src/components/Footer.tsx`
+
+## Assets
+
+- Hero image: `src/assets/hero-community.jpg`
+- E-book covers: `src/assets/ebook-career.jpg`, `src/assets/ebook-growth.jpg`
+- Favicon: `public/favicon.png`
+
+## Links Eksternal
+
+- Instagram: https://www.instagram.com/kami.mindsunited/?hl=en
+- E-Book 1: https://drive.google.com/file/d/1rXOHVfK_rtOxvPIWsPZILdTt1Wko_rrZ/view?usp=drive_link
+- E-Book 2: https://drive.google.com/file/d/1FUdkZWGlJjkS6hw8H55I2iG-pI4kTa9U/view?usp=drive_link
+
+## Accessibility
+
+- Semantic HTML5 elements
+- ARIA labels pada interactive elements
+- Alt text untuk semua gambar
+- Keyboard navigation support
+- Form validation dengan error messages
+- Focus states visible
+
+## SEO
+
+- Meta tags untuk social media (OG & Twitter cards)
+- Semantic HTML structure
+- Descriptive titles dan descriptions
+- sitemap.xml dan robots.txt di folder public
+
+## License
+
+© 2025 Minds United — Semua hak dilindungi.
